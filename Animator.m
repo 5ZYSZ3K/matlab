@@ -9,7 +9,7 @@ classdef Animator
             obj.pendulum = passed_pendulum;
         end
 
-        function modified_object = animate(self)
+        function modified_object = animate_and_save(self)
             values_array = self.pendulum.get_values();
 
             % dwie następne linijki zajebane ze stackoverflow
@@ -17,12 +17,12 @@ classdef Animator
             [L_1, L_2, m_1, m_2] = values_cell_array{:};
 
             for t = 0:.1:self.pendulum.get_max_time()
-                first_coordinates = self.pendulum.getFirstBallCoordinates(t);
-                second_coordinates = self.pendulum.getSecondBallCoordinates(t);
+                first_coordinates = self.pendulum.get_first_ball_coordinates(t);
+                second_coordinates = self.pendulum.get_second_ball_coordinates(t);
                 x_1 = first_coordinates(1);
                 y_1 = first_coordinates(2);
                 x_2 = second_coordinates(1);
-                y_2 = first_coordinates(2);
+                y_2 = second_coordinates(2);
                 plot(x_1,y_1,'ro','MarkerSize',m_1*7,'MarkerFaceColor','r');
                 hold on;
                 plot([0 x_1],[0 y_1],'r-');
@@ -32,16 +32,18 @@ classdef Animator
                 hold off;
                 xlim([-L_1-L_2-1,L_1+L_2+1]);
                 ylim([-L_1-L_2-1,L_1+L_2+1]);
-                modified_object.frames(round(t*10)+1) = getframe; 
+                temp_frames(round(t*10)+1) = getframe;
             end
+
+            modified_object.frames = temp_frames;
+            mov = VideoWriter('output.avi');
+            mov.open;
+            writeVideo(mov, modified_object.frames);
+            mov.close;
         end
 
-        function save_animation_to_file(self)
-            mov = VideoWriter('output.avi');
-            open(mov);
-            disp(self.frames);
-            writeVideo(mov, self.frames);
-            close(mov);
+        function change_pendulum_values(self, a1, a2, m1, m2, l1, l2, g, max_t)
+            self.pendulum.change_values(a1, a2, m1, m2, l1, l2, g, max_t);
         end
     end
 end

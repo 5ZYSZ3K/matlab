@@ -50,19 +50,31 @@ classdef Pendulum
             M = matlabFunction(V,'vars',{'t','Y'});
 
             obj.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
-            
         end
 
-        function coords = getFirstBallCoordinates(self, t)
+        function self = set.length_first(self, length)
+            self.length_first = length;
+        end
+
+        function self = set.max_time(self, time)
+            self.max_time = time;
+        end
+
+        function coords = get_first_ball_coordinates(self, t)
             coords = [self.length_first*sin(deval(self.solutions, t, 3)), -self.length_first*cos(deval(self.solutions, t, 3))];
         end
 
-        function coords = getSecondBallCoordinates(self, t)
-            firstBallCoordinates = self.getFirstBallCoordinates(t);
-            coords = [firstBallCoordinates(1) + self.length_second*sin(deval(self.solutions, t, 1)), firstBallCoordinates(2) - self.length_second*cos(deval(self.solutions, t, 1))];
+        function coords = get_second_ball_coordinates(self, t)
+            first_ball_coordinates = self.get_first_ball_coordinates(t);
+            coords = [first_ball_coordinates(1) + self.length_second*sin(deval(self.solutions, t, 1)), first_ball_coordinates(2) - self.length_second*cos(deval(self.solutions, t, 1))];
         end
 
-        function modified_object = change_values(~, a1, a2, m1, m2, l1, l2, g, max_t)
+        function self = change_values(self, a1, a2, m1, m2, l1, l2, g, max_t)
+            self.mass_first = m1;
+            self.mass_second = m2;
+            self.max_time = max_t;
+            self.length_first = l1;
+            self.length_second = l2;
             syms theta_1(t) theta_2(t) L_1 L_2 m_1 m_2 grav;
             x_1 = L_1*sin(theta_1);
             y_1 = -L_1*cos(theta_1);
@@ -96,7 +108,7 @@ classdef Pendulum
             V = odeToVectorField(substituted_equation_1, substituted_equation_2);
             M = matlabFunction(V,'vars',{'t','Y'});
 
-            modified_object.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
+            self.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
         end
 
         function values = get_values(self)
