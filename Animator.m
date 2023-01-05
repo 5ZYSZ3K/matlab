@@ -1,14 +1,19 @@
 classdef Animator
-    properties (Access = private)
+    properties
         pendulum {mustBeNonmissing}
+    end
+
+    properties (Access = private)
         frames
     end
 
     methods
+        % constructor, it takes a pendulum object as a parameter
         function obj = Animator(passed_pendulum)
             obj.pendulum = passed_pendulum;
         end
 
+        % a function that animates the pendulum and saves the output to the `output.avi` file
         function modified_object = animate_and_save(self)
             values_array = self.pendulum.get_values();
 
@@ -40,10 +45,6 @@ classdef Animator
             mov.open;
             writeVideo(mov, modified_object.frames);
             mov.close;
-        end
-
-        function change_pendulum_values(self, a1, a2, m1, m2, l1, l2, g, max_t)
-            self.pendulum.change_values(a1, a2, m1, m2, l1, l2, g, max_t);
         end
     end
 end

@@ -9,6 +9,7 @@ classdef Pendulum
     end
 
     methods
+        % constructor, as a parameter takes first and second ball initial angles, masses and lengths, the gravity and the animation duration
         function obj = Pendulum(a1, a2, m1, m2, l1, l2, g, max_t)
             obj.mass_first = m1;
             obj.mass_second = m2;
@@ -52,23 +53,18 @@ classdef Pendulum
             obj.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
         end
 
-        function self = set.length_first(self, length)
-            self.length_first = length;
-        end
-
-        function self = set.max_time(self, time)
-            self.max_time = time;
-        end
-
+        % a function that returns the first ball coordinates within given time
         function coords = get_first_ball_coordinates(self, t)
             coords = [self.length_first*sin(deval(self.solutions, t, 3)), -self.length_first*cos(deval(self.solutions, t, 3))];
         end
 
+        % a function that returns the second ball coordinates within given time
         function coords = get_second_ball_coordinates(self, t)
             first_ball_coordinates = self.get_first_ball_coordinates(t);
             coords = [first_ball_coordinates(1) + self.length_second*sin(deval(self.solutions, t, 1)), first_ball_coordinates(2) - self.length_second*cos(deval(self.solutions, t, 1))];
         end
 
+        % a function that lets us change the pendulum parameters - takes identical parameters as the constructor
         function self = change_values(self, a1, a2, m1, m2, l1, l2, g, max_t)
             self.mass_first = m1;
             self.mass_second = m2;
@@ -111,10 +107,12 @@ classdef Pendulum
             self.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
         end
 
+        % a function that returns the pendulum parameters
         function values = get_values(self)
             values = [self.length_first, self.length_second, self.mass_first, self.mass_second];
         end
 
+        % a function that returns the animation duration
         function time = get_max_time(self)
             time = self.max_time;
         end
