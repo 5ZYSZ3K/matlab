@@ -22,7 +22,8 @@
    Similar to the one above, it returns the position of the second ball
 
 4. change_values <br />
-   It takes the same arguments as the constructor, it mutates the pendulum
+   `mutating`
+   It takes the same arguments as the constructor, it mutates the pendulum.
 
 5. get_values <br />
    It returns a vector with the first rod length, the second rod length, the first ball mass and the second ball mass
@@ -37,11 +38,19 @@
 1. constructor <br />
    It takes the pendulum object as a parameter, creates the Animator object
 
-2. animate_and_save <br />
-   It fires the animation and then saves the animation file to the `output.avi` file (already in `.gitignore`)
+2. animate <br />
+   `mutating`
+   It fires the animation
+
+3. save <br />
+   Saves the animation file to the `output.avi` file (already in `.gitignore`)
 
 ## TODO
 
 1. Create a GUI interface, with a form inside, which, on submit, will either create new pendulum class and override the old one, or simply fire `change_values` method on the pendulum object to change its inner implementation. For now, the preferable way is to create a new pendulum and animator object on submit, because I still haven't figured out how attributes mutation works in MATLAB.
 
-2. Figure out how attributes mutation works in MATLAB, and how complex objects are being passed (via reference or via value). Then, create a solution to update the pendulum object values on submit, to reduce complexicity.
+2. Figure out how attributes mutation works in MATLAB, and how complex objects are being passed (via reference or via value). Then, find a better solution to update the pendulum object values on submit, to reduce complexicity.
+
+## Notes
+
+1. Methods marked as `mutating` requires assigning the output to the object on which you have called the method

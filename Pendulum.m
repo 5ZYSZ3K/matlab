@@ -65,12 +65,13 @@ classdef Pendulum
         end
 
         % a function that lets us change the pendulum parameters - takes identical parameters as the constructor
-        function self = change_values(self, a1, a2, m1, m2, l1, l2, g, max_t)
-            self.mass_first = m1;
-            self.mass_second = m2;
-            self.max_time = max_t;
-            self.length_first = l1;
-            self.length_second = l2;
+        function modified_object = change_values(self, a1, a2, m1, m2, l1, l2, g, max_t)
+            modified_object = self;
+            modified_object.mass_first = m1;
+            modified_object.mass_second = m2;
+            modified_object.max_time = max_t;
+            modified_object.length_first = l1;
+            modified_object.length_second = l2;
             syms theta_1(t) theta_2(t) L_1 L_2 m_1 m_2 grav;
             x_1 = L_1*sin(theta_1);
             y_1 = -L_1*cos(theta_1);
@@ -104,7 +105,7 @@ classdef Pendulum
             V = odeToVectorField(substituted_equation_1, substituted_equation_2);
             M = matlabFunction(V,'vars',{'t','Y'});
 
-            self.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
+            modified_object.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
         end
 
         % a function that returns the pendulum parameters

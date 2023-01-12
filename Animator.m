@@ -1,10 +1,7 @@
 classdef Animator
-    properties
-        pendulum {mustBeNonmissing}
-    end
-
     properties (Access = private)
         frames
+        pendulum {mustBeNonmissing}
     end
 
     methods
@@ -13,13 +10,21 @@ classdef Animator
             obj.pendulum = passed_pendulum;
         end
 
+        function modified_object = change_pendulum_values(self, a1, a2, m1, m2, l1, l2, g, max_t)
+            modified_object = self;
+            modified_object.pendulum = self.pendulum.change_values(a1, a2, m1, m2, l1, l2, g, max_t);
+        end
+
         % a function that animates the pendulum and saves the output to the `output.avi` file
-        function modified_object = animate_and_save(self)
+        function modified_object = animate(self)
+            modified_object = self;
             values_array = self.pendulum.get_values();
 
-            % dwie następne linijki zajebane ze stackoverflow
+            % two next lines stolen from stackoferflow
             values_cell_array = num2cell(values_array);
             [L_1, L_2, m_1, m_2] = values_cell_array{:};
+
+            temp_frames = struct('cdata', cell(1, self.pendulum.get_max_time()), 'colormap', cell(1, self.pendulum.get_max_time()));
 
             for t = 0:.1:self.pendulum.get_max_time()
                 first_coordinates = self.pendulum.get_first_ball_coordinates(t);
@@ -34,16 +39,19 @@ classdef Animator
                 plot(x_2,y_2,'go','MarkerSize',m_2*10,'MarkerFaceColor','g');
                 plot([x_1 x_2],[y_1 y_2],'g-');
                 text(-0.3,0.3,"Timer: "+num2str(t,2));
-                hold off;
                 xlim([-L_1-L_2-1,L_1+L_2+1]);
                 ylim([-L_1-L_2-1,L_1+L_2+1]);
+                hold off;
                 temp_frames(round(t*10)+1) = getframe;
             end
 
             modified_object.frames = temp_frames;
+        end
+
+        function save(self)
             mov = VideoWriter('output.avi');
             mov.open;
-            writeVideo(mov, modified_object.frames);
+            writeVideo(mov, self.frames);
             mov.close;
         end
     end
