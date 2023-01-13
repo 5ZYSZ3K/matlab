@@ -4,7 +4,7 @@
 - Clone this repo
 - Run the matlab packet
 - In the MATLAB IDE, navigate to the folder where you have cloned this repo
-- Open `View.m` file and hit the `F5` button
+- Open `View.mlapp` file using MATLAB App Designer and press the `run` button
 
 # Development
 
@@ -47,9 +47,11 @@
 
 ## TODO
 
-1. Create a GUI interface, with a form inside, which, on submit, will either create new pendulum class and override the old one, or simply fire `change_values` method on the pendulum object to change its inner implementation. For now, the preferable way is to create a new pendulum and animator object on submit, because I still haven't figured out how attributes mutation works in MATLAB.
+1. Enhance the GUI (e.g. background image, better validation)
 
-2. Figure out how attributes mutation works in MATLAB, and how complex objects are being passed (via reference or via value). Then, find a better solution to update the pendulum object values on submit, to reduce complexicity.
+2. Figure out, how to get rid of this randomly occuring "all 'cdata' fields must be the same size" error while saving the video
+
+3. Figure out how attributes mutation works in MATLAB, and how complex objects are being passed (via reference or via value). Then, find a better solution to update the pendulum object values on submit, to reduce complexicity.
 
 ## Notes
 

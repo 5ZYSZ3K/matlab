@@ -8,49 +8,57 @@ classdef Pendulum
         max_time {mustBeNumeric}
     end
 
-    methods
-        % constructor, as a parameter takes first and second ball initial angles, masses and lengths, the gravity and the animation duration
-        function obj = Pendulum(a1, a2, m1, m2, l1, l2, g, max_t)
-            obj.mass_first = m1;
-            obj.mass_second = m2;
-            obj.max_time = max_t;
-            obj.length_first = l1;
-            obj.length_second = l2;
+    methods (Access = private)
+        function modified_object = solve_equations(self, a1, a2, m1, m2, l1, l2, g, max_t)
+            modified_object = self;
 
-            syms theta_1(t) theta_2(t) L_1 L_2 m_1 m_2 grav;
-            x_1 = L_1*sin(theta_1);
-            y_1 = -L_1*cos(theta_1);
-            x_2 = x_1 + L_2*sin(theta_2);
-            y_2 = y_1 - L_2*cos(theta_2);
-            vx_1 = diff(x_1);
-            vy_1 = diff(y_1);
-            vx_2 = diff(x_2);
-            vy_2 = diff(y_2);
-            ax_1 = diff(vx_1);
-            ay_1 = diff(vy_1);
-            ax_2 = diff(vx_2);
-            ay_2 = diff(vy_2);
+            modified_object.mass_first = m1;
+            modified_object.mass_second = m2;
+            modified_object.max_time = max_t;
+            modified_object.length_first = l1;
+            modified_object.length_second = l2;
+            syms angle_1(t) angle_2(t) length_1 length_2 mass_1 mass_2 gravity;
+            x_1 = length_1*sin(angle_1);
+            y_1 = -length_1*cos(angle_1);
+            x_2 = x_1 + length_2*sin(angle_2);
+            y_2 = y_1 - length_2*cos(angle_2);
+            velocity_x_1 = diff(x_1);
+            velocity_y_1 = diff(y_1);
+            velocity_x_2 = diff(x_2);
+            velocity_y_2 = diff(y_2);
+            acceleration_x_1 = diff(velocity_x_1);
+            acceleration_y_1 = diff(velocity_y_1);
+            acceleration_x_2 = diff(velocity_x_2);
+            acceleration_y_2 = diff(velocity_y_2);
             
-            syms T_1 T_2;
+            syms tension_1 tension_2;
             
-            eqx_1 = m_1*ax_1(t) == -T_1*sin(theta_1(t)) + T_2*sin(theta_2(t));
-            eqy_1 = m_1*ay_1(t) == T_1*cos(theta_1(t)) - T_2*cos(theta_2(t)) - m_1*grav;
+            differental_equation_x_1 = mass_1*acceleration_x_1(t) == -tension_1*sin(angle_1(t)) + tension_2*sin(angle_2(t));
+            differental_equation_y_1 = mass_1*acceleration_y_1(t) == tension_1*cos(angle_1(t)) - tension_2*cos(angle_2(t)) - mass_1*gravity;
             
-            eqx_2 = m_2*ax_2(t) == -T_2*sin(theta_2(t));
-            eqy_2 = m_2*ay_2(t) == T_2*cos(theta_2(t)) - m_2*grav;
+            differental_equation_x_2 = mass_2*acceleration_x_2(t) == -tension_2*sin(angle_2(t));
+            differental_equation_y_2 = mass_2*acceleration_y_2(t) == tension_2*cos(angle_2(t)) - mass_2*gravity;
             
-            Tension = solve([eqx_1 eqy_1],[T_1 T_2]);
+            overall_tension = solve([differental_equation_x_1 differental_equation_y_1],[tension_1 tension_2]);
             
-            equation_1 = subs(eqx_2,[T_1 T_2],[Tension.T_1 Tension.T_2]);
-            equation_2 = subs(eqy_2,[T_1 T_2],[Tension.T_1 Tension.T_2]);
+            general_differental_equation_1 = subs(differental_equation_x_2,[tension_1 tension_2], [overall_tension.tension_1, overall_tension.tension_2]);
+            general_differental_equation_2 = subs(differental_equation_y_2,[tension_1 tension_2], [overall_tension.tension_1, overall_tension.tension_2]);
 
-            substituted_equation_1 = subs(equation_1, [L_1, L_2, m_1, m_2, grav], [l1, l2, m1, m2, g]);
-            substituted_equation_2 = subs(equation_2, [L_1, L_2, m_1, m_2, grav], [l1, l2, m1, m2, g]);
+            substituted_equation_1 = subs(general_differental_equation_1, [length_1, length_2, mass_1, mass_2, gravity], [l1, l2, m1, m2, g]);
+            substituted_equation_2 = subs(general_differental_equation_2, [length_1, length_2, mass_1, mass_2, gravity], [l1, l2, m1, m2, g]);
             
             V = odeToVectorField(substituted_equation_1, substituted_equation_2);
             M = matlabFunction(V,'vars',{'t','Y'});
 
-            obj.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
+            modified_object.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
+
+        end
+    end
+
+    methods
+        % constructor, as a parameter takes first and second ball initial angles, masses and lengths, the gravity and the animation duration
+        function obj = Pendulum(a1, a2, m1, m2, l1, l2, g, max_t)
+            obj = obj.solve_equations(a1, a2, m1, m2, l1, l2, g, max_t);
         end
 
         % a function that returns the first ball coordinates within given time
@@ -67,45 +75,7 @@ classdef Pendulum
         % a function that lets us change the pendulum parameters - takes identical parameters as the constructor
         function modified_object = change_values(self, a1, a2, m1, m2, l1, l2, g, max_t)
             modified_object = self;
-            modified_object.mass_first = m1;
-            modified_object.mass_second = m2;
-            modified_object.max_time = max_t;
-            modified_object.length_first = l1;
-            modified_object.length_second = l2;
-            syms theta_1(t) theta_2(t) L_1 L_2 m_1 m_2 grav;
-            x_1 = L_1*sin(theta_1);
-            y_1 = -L_1*cos(theta_1);
-            x_2 = x_1 + L_2*sin(theta_2);
-            y_2 = y_1 - L_2*cos(theta_2);
-            vx_1 = diff(x_1);
-            vy_1 = diff(y_1);
-            vx_2 = diff(x_2);
-            vy_2 = diff(y_2);
-            ax_1 = diff(vx_1);
-            ay_1 = diff(vy_1);
-            ax_2 = diff(vx_2);
-            ay_2 = diff(vy_2);
-            
-            syms T_1 T_2;
-            
-            eqx_1 = m_1*ax_1(t) == -T_1*sin(theta_1(t)) + T_2*sin(theta_2(t));
-            eqy_1 = m_1*ay_1(t) == T_1*cos(theta_1(t)) - T_2*cos(theta_2(t)) - m_1*grav;
-            
-            eqx_2 = m_2*ax_2(t) == -T_2*sin(theta_2(t));
-            eqy_2 = m_2*ay_2(t) == T_2*cos(theta_2(t)) - m_2*grav;
-            
-            Tension = solve([eqx_1 eqy_1],[T_1 T_2]);
-            
-            equation_1 = subs(eqx_2,[T_1 T_2],[Tension.T_1 Tension.T_2]);
-            equation_2 = subs(eqy_2,[T_1 T_2],[Tension.T_1 Tension.T_2]);
-
-            substituted_equation_1 = subs(equation_1, [L_1, L_2, m_1, m_2, grav], [l1, l2, m1, m2, g]);
-            substituted_equation_2 = subs(equation_2, [L_1, L_2, m_1, m_2, grav], [l1, l2, m1, m2, g]);
-
-            V = odeToVectorField(substituted_equation_1, substituted_equation_2);
-            M = matlabFunction(V,'vars',{'t','Y'});
-
-            modified_object.solutions = ode45(M,[0 max_t], [a1 0 a2 0]);
+            modified_object = modified_object.solve_equations( a1, a2, m1, m2, l1, l2, g, max_t);
         end
 
         % a function that returns the pendulum parameters
