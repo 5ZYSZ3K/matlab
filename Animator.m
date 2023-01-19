@@ -26,6 +26,8 @@ classdef Animator
 
             temp_frames = struct('cdata', cell(1, self.pendulum.get_max_time()), 'colormap', cell(1, self.pendulum.get_max_time()));
 
+            fig = figure('Position',[100 100 850 600]);
+
             for t = 0:.1:self.pendulum.get_max_time()
                 first_coordinates = self.pendulum.get_first_ball_coordinates(t);
                 second_coordinates = self.pendulum.get_second_ball_coordinates(t);
@@ -42,13 +44,15 @@ classdef Animator
                 xlim([-L_1-L_2-1,L_1+L_2+1]);
                 ylim([-L_1-L_2-1,L_1+L_2+1]);
                 hold off;
-                temp_frames(round(t*10)+1) = getframe;
+                temp_frames(round(t*10)+1) = getframe(fig);
             end
 
             modified_object.frames = temp_frames;
+            close(fig);
         end
 
         function save(self)
+            delete 'output.avi';
             mov = VideoWriter('output.avi');
             mov.open;
             writeVideo(mov, self.frames);

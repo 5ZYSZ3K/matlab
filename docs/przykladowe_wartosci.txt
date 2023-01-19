@@ -1,0 +1,8 @@
+Kąt 1: 60
+Kąt 2: 30
+Masa pierwszej kuli: 5
+Masa drugiej kuli: 2
+Czas trwania animacji: 12
+Długość 1: 5
+Długość 2: 3
+Przyspieszenie grawitacyjne: 9.8
